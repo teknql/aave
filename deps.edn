@@ -1,0 +1,12 @@
+{:paths ["src"]
+ :deps
+ {metosin/malli
+  {:git/url "https://github.com/metosin/malli"
+   :sha     "c0ba26fc581d9e3407447d9e3ee273bd0a3ea9c2"}}
+ :aliases
+ {:test
+  {:extra-paths ["test"]
+   :main-opts   ["-m" "kaocha.runner"]
+   :extra-deps
+   {lambdaisland/kaocha      {:mvn/version "0.0-554"}
+    lambdaisland/kaocha-cljs {:mvn/version "0.0-59"}}}}}
