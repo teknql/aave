@@ -28,3 +28,12 @@
       (is (= '[((+ 1 2))
                ((+ 3 4))]
              @bodies)))))
+
+(deftest pure?-test
+  (testing "forms without !"
+    (is (sut/pure? '(f 5))))
+  (testing "forms with !"
+    (is (not (sut/pure? '(reset! a 5)))))
+
+  (testing "does not include persistent! as a impure call"
+    (is (sut/pure? '(persistent! foo)))))

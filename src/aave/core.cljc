@@ -1,6 +1,6 @@
 (ns aave.core
   "Main namespace of aave"
-  (:require [aave.code]
+  (:require [aave.code :as code]
             [aave.config :as config]
             [aave.syntax.ghostwheel :as syntax.gw]))
 

@@ -17,6 +17,25 @@
     (map #(map-body f %) body+params)
     (cons (first body+params) (f (first body+params) (rest body+params)))))
 
+(defn pure?
+  "Naively iterates over symbols in the provided `form` looking for whether any
+  of them end with a literal `!`. If so, returns `false`.
+
+  Does not count `persistent!`."
+  [form]
+  (let [form (if-not (seqable? form)
+               (list form)
+               form)]
+    (->> (flatten form)
+         (filter symbol?)
+         (keep #(re-matches #".*!$" (str %)))
+         (remove #{"persistent!"})
+         (empty?))))
+
+(def impure?
+  "The complement of `pure?`."
+  (complement pure?))
+
 (defn extract-arg
   "Utility function for extracting arguments from a list.
 
@@ -42,7 +61,7 @@
   (let [def-sym         (if private
                           'defn-
                           'defn)
-        settings        (merge config/config meta-map)
+        settings        (merge @config/config meta-map)
         malli-opts      (:aave.core/malli-opts meta-map)
         param-explainer (when param-schema
                           (m/explainer param-schema malli-opts))
@@ -56,6 +75,8 @@
                                    :aave.core/ret-schema ret-schema
                                    :aave.core/ret-explainer ret-explainer)
                             (merge meta-map))
+        enforce-purity? (:aave.core/enforce-purity settings)
+        on-purity-fail  (:aave.core/on-compilation-purity-fail settings)
         params+body     (cond->> params+body
                           (::generate-stubs settings)
                           (map-body (fn [_ body]
@@ -79,4 +100,7 @@
                               name
                               new-meta])
                        params+body)]
-    `~fn-def))
+    `(cond
+      (and ~enforce-purity? ~(pure? name) ~(impure? params+body))
+      (~on-purity-fail)
+      :else ~fn-def)))
