@@ -1,6 +1,5 @@
 (ns aave.config
-  "Namespace for configuring aave"
-  (:require [aave.error :as error]))
+  "Namespace for configuring aave")
 
 (def default
   "The default settings used by aave"

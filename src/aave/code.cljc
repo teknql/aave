@@ -64,9 +64,9 @@
         settings        (merge @config/config meta-map)
         malli-opts      (:aave.core/malli-opts meta-map)
         param-explainer (when param-schema
-                          (m/explainer param-schema malli-opts))
+                          `(m/explainer ~param-schema ~malli-opts))
         ret-explainer   (when ret-schema
-                          (m/explainer ret-schema malli-opts))
+                          `(m/explainer ~ret-schema ~malli-opts))
         new-meta        (-> (meta name)
                             (assoc :doc doc
                                    :aave.core/generated true
@@ -78,22 +78,22 @@
         enforce-purity? (:aave.core/enforce-purity settings)
         on-purity-fail  (:aave.core/on-compilation-purity-fail settings)
         params+body     (cond->> params+body
-                          (::generate-stubs settings)
+                          (:aave.core/generate-stubs settings)
                           (map-body (fn [_ body]
                                       (if (empty? body)
                                         `((mg/generate ~ret-schema))
                                         body)))
-                          (and (::instrument settings) param-explainer)
+                          (and (:aave.core/instrument settings) param-explainer)
                           (map-body (fn [param-syms body]
-                                      `((when-some [failure# ((-> #'~name meta ::param-explainer) [~@param-syms])]
-                                          (~(::on-instrument-fail settings) failure#))
+                                      `((when-some [failure# ((-> #'~name meta :aave.core/param-explainer) [~@param-syms])]
+                                          (~(:aave.core/on-instrument-fail settings) failure#))
                                         (do ~@body))))
 
-                          (and (::outstrument settings) ret-explainer)
+                          (and (:aave.core/outstrument settings) ret-explainer)
                           (map-body (fn [_ body]
                                       `((let [result# (do ~@body)]
-                                          (if-some [failure# ((-> #'~name meta ::ret-explainer) result#)]
-                                            (~(::on-outstrument-fail settings) failure#)
+                                          (if-some [failure# ((-> #'~name meta :aave.core/ret-explainer) result#)]
+                                            (~(:aave.core/on-outstrument-fail settings) failure#)
                                             result#))))))
         fn-def (concat (keep identity
                              [def-sym
