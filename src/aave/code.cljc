@@ -76,7 +76,7 @@
                                    :aave.core/ret-explainer ret-explainer)
                             (merge meta-map))
         enforce-purity? (:aave.core/enforce-purity settings)
-        on-purity-fail  (:aave.core/on-compilation-purity-fail settings)
+        on-purity-fail  (:aave.core/on-purity-fail settings)
         params+body     (cond->> params+body
                           (:aave.core/generate-stubs settings)
                           (map-body (fn [_ body]
@@ -101,6 +101,6 @@
                               new-meta])
                        params+body)]
     `(cond
-      (and ~enforce-purity? ~(pure? name) ~(impure? params+body))
-      (~on-purity-fail)
-      :else ~fn-def)))
+       (and ~enforce-purity? ~(pure? name) ~(impure? params+body))
+       (~on-purity-fail)
+       :else ~fn-def)))

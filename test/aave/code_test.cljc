@@ -1,7 +1,7 @@
 (ns aave.code-test
   (:require [aave.code :as sut]
             #?(:clj [clojure.test :as t :refer [deftest testing is]]
-               :cljs [cljs.test :as t :include-macros true])))
+               :cljs [cljs.test :as t :refer [deftest testing is] :include-macros true])))
 
 (deftest map-body
   (let [params    (atom [])
